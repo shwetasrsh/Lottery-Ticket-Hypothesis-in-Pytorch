@@ -64,7 +64,7 @@ def main(args, ITE=0):
     train_loader = torch.utils.data.DataLoader(traindataset, batch_size=args.batch_size, shuffle=True, num_workers=0,drop_last=False)
     #train_loader = cycle(train_loader)
     test_loader = torch.utils.data.DataLoader(testdataset, batch_size=args.batch_size, shuffle=False, num_workers=0,drop_last=True)
-    
+    print(len(train_loader))
     # Importing Network Architecture
     global model
     if args.arch_type == "fc1":
@@ -102,8 +102,8 @@ def main(args, ITE=0):
     criterion = nn.CrossEntropyLoss() # Default was F.nll_loss
 
     # Layer Looper
-    for name, param in model.named_parameters():
-        print(name, param.size())
+#     for name, param in model.named_parameters():
+#         print(name, param.size())
 
     # Pruning
     # NOTE First Pruning Iteration is of No Compression
@@ -118,6 +118,7 @@ def main(args, ITE=0):
 
 
     for _ite in range(args.start_iter, ITERATION):
+        print('Hello')
         if not _ite == 0:
             prune_by_percentile(args.prune_percent, resample=resample, reinit=reinit)
             if reinit:
