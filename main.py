@@ -80,7 +80,7 @@ def main(args, ITE=0):
     elif args.arch_type == "densenet121":
         model = densenet.densenet121().to(device)  
     elif args.arch_type == "googlenet":
- 	    model = googlenet.googlenet().to(device)
+ 	    model = googlenet.GoogLeNet().to(device)
     # If you want to add extra model paste here
     else:
         print("\nWrong Model choice\n")
