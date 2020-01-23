@@ -38,7 +38,7 @@ def main(args, ITE=0):
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
         testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet
+        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet
 
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
@@ -78,7 +78,9 @@ def main(args, ITE=0):
     elif args.arch_type == "resnet18":
         model = resnet.resnet18().to(device)   
     elif args.arch_type == "densenet121":
-        model = densenet.densenet121().to(device)   
+        model = densenet.densenet121().to(device)  
+    elif args.arch_type == "googlenet":
+ 	    model = googlenet.googlenet().to(device)
     # If you want to add extra model paste here
     else:
         print("\nWrong Model choice\n")
