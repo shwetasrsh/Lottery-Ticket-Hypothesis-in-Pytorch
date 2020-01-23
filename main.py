@@ -79,8 +79,8 @@ def main(args, ITE=0):
         model = resnet.resnet18().to(device)   
     elif args.arch_type == "densenet121":
         model = densenet.densenet121().to(device)  
-    elif args.arch_type == "googlenet":
- 	    model = googlenet.GoogLeNet().to(device)
+    elif args.arch_type == "GoogLeNet":
+        model = googlenet.GoogLeNet().to(device)
     # If you want to add extra model paste here
     else:
         print("\nWrong Model choice\n")
