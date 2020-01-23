@@ -43,7 +43,7 @@ def main(args, ITE=0):
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
         testdataset = datasets.CIFAR10('../data', train=False, transform=transform)      
-        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet 
+        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet 
 
     elif args.dataset == "fashionmnist":
         traindataset = datasets.FashionMNIST('../data', train=True, download=True,transform=transform)
