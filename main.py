@@ -56,7 +56,11 @@ def main(args, ITE=0):
         from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet  
     
     # If you want to add extra datasets paste here
-
+    #Here we will insert the model of reinforcement learning on atari games
+    
+    elif args.dataset == "atari_games"
+        traindataset = #do nothing
+        testdataset = #do nothing
     else:
         print("\nWrong Dataset choice \n")
         exit()
@@ -82,6 +86,8 @@ def main(args, ITE=0):
     elif args.arch_type == "GoogLeNet":
         model = googlenet.GoogLeNet().to(device)
     # If you want to add extra model paste here
+    elif args.arch_type == "Atari_games":
+        model = .to(device)
     else:
         print("\nWrong Model choice\n")
         exit()
