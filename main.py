@@ -43,7 +43,7 @@ def main(args, ITE=0):
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
         testdataset = datasets.CIFAR10('../data', train=False, transform=transform)      
-        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet
+        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet, Xception
 
     elif args.dataset == "fashionmnist":
         traindataset = datasets.FashionMNIST('../data', train=True, download=True,transform=transform)
@@ -85,8 +85,8 @@ def main(args, ITE=0):
         model = densenet.densenet121().to(device)  
     elif args.arch_type == "GoogLeNet":
         model = googlenet.GoogLeNet().to(device)
-    #elif args.arch_type == "Xception":
-        #model = Xception.Xception().to(device)
+    elif args.arch_type == "Xception":
+        model = Xception.Xception().to(device)
     # If you want to add extra model paste here
     #elif args.arch_type == "Atari_games":
         #model = .to(device)
