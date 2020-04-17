@@ -43,7 +43,7 @@ def main(args, ITE=0):
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
         testdataset = datasets.CIFAR10('../data', train=False, transform=transform)      
-        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet, ResNeXt
+        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet, ResNeXt, PyramidNet
 
     elif args.dataset == "fashionmnist":
         traindataset = datasets.FashionMNIST('../data', train=True, download=True,transform=transform)
@@ -87,6 +87,8 @@ def main(args, ITE=0):
         model = googlenet.GoogLeNet().to(device)
     elif args.arch_type == "ResNeXt":
         model = ResNeXt.ResNeXt().to(device)
+    elif args.arch_type == "PyramidNet":
+        model = PyramidNet.PyramidNet().to(device)
     #elif args.arch_type == "Xception":
         #model = Xception.Xception().to(device)
     # If you want to add extra model paste here
