@@ -86,9 +86,9 @@ def main(args, ITE=0):
     elif args.arch_type == "GoogLeNet":
         model = googlenet.GoogLeNet().to(device)
     elif args.arch_type == "ResNeXt":
-        model = ResNeXt.ResNeXt().to(device)
-    elif args.arch_type == "PyramidNet":
-        model = PyramidNet.PyramidNet().to(device)
+        model = ResNeXt.ResNeXt(num_blocks=[3,3,3], cardinality=2, bottleneck_width=64).to(device)
+    #elif args.arch_type == "PyramidNet":
+        #model = PyramidNet.PyramidNet(num_layers=18, alpha=48, block=ResidualBlock).to(device)
     #elif args.arch_type == "Xception":
         #model = Xception.Xception().to(device)
     # If you want to add extra model paste here
