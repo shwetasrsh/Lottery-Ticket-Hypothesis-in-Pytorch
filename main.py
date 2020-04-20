@@ -38,12 +38,12 @@ def main(args, ITE=0):
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
         testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet
+        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, MobileNetV2
 
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
         testdataset = datasets.CIFAR10('../data', train=False, transform=transform)      
-        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet, ResNeXt, SENet
+        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet, ResNeXt, MobileNetV2
 
     elif args.dataset == "fashionmnist":
         traindataset = datasets.FashionMNIST('../data', train=True, download=True,transform=transform)
@@ -93,6 +93,8 @@ def main(args, ITE=0):
         #model = PyramidNet.PyramidNet(num_layers=18, alpha=48, block=ResidualBlock).to(device)
     #elif args.arch_type == "Xception":
         #model = Xception.Xception().to(device)
+    elif args.arch_type == "MobileNetV2":
+        model = MobileNetV2.MobileNetV2().to(device)
     # If you want to add extra model paste here
     #elif args.arch_type == "Atari_games":
         #model = .to(device)
