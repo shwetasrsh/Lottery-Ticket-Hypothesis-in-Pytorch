@@ -38,7 +38,7 @@ def main(args, ITE=0):
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
         testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, MobileNetV2, DenseNet
+        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, MobileNetV2, DenseNet, resnext
 
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
@@ -91,8 +91,8 @@ def main(args, ITE=0):
         model = SENet.SENet(PreActBlock, [2,2,2,2]).to(device)
     elif args.arch_type == "DenseNet":
         model = DenseNet.DenseNet().to(device)
-    #elif args.arch_type == "PyramidNet":
-        #model = PyramidNet.PyramidNet(num_layers=18, alpha=48, block=ResidualBlock).to(device)
+    elif args.arch_type == "resnext":
+        model = resnext.resnext(num_blocks=[3,3,3], cardinality=8, bottleneck_width=64.to(device)
     #elif args.arch_type == "Xception":
         #model = Xception.Xception().to(device)
     elif args.arch_type == "MobileNetV2":
