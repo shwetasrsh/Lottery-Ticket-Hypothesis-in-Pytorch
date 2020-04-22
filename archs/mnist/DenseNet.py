@@ -72,7 +72,6 @@ class DenseNet(nn.Module):
 
     def __init__(self, growth_rate=4, block_config=(6, 6, 6), compression=0.5, num_init_features=24, bn_size=4, drop_rate=0, avgpool_size=8, num_classes=10):
         super(DenseNet, self).__init__()
-
         # The first Convolution layer
         self.features = nn.Sequential(OrderedDict([
             ('conv0', nn.Conv2d(1, num_init_features, kernel_size=3, stride=1, padding=1, bias=False)),
