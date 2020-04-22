@@ -38,7 +38,7 @@ def main(args, ITE=0):
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
         testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, MobileNetV2, resnext
+        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, MobileNetV2, resnext, DenseNet
 
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
