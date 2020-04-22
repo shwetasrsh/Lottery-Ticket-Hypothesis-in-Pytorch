@@ -6,9 +6,9 @@ from tqdm import tqdm
 
 
 DPI = 1200
-prune_iterations = 35
-arch_types = ["fc1", "lenet5", "resnet18"]
-datasets = ["mnist", "fashionmnist", "cifar10", "cifar100"]
+prune_iterations = 8
+arch_types = ["GoogLeNet", "resnext"]
+datasets = ["mnist", "cifar10"]
 
 
 for arch_type in tqdm(arch_types):
