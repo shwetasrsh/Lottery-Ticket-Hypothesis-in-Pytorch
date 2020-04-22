@@ -51,7 +51,9 @@ class resnext(nn.Module):
         self.layer2 = self._make_layer(num_blocks[1], 2)
         self.layer3 = self._make_layer(num_blocks[2], 2)
         # self.layer4 = self._make_layer(num_blocks[3], 2)
-        self.linear = nn.Linear(cardinality*bottleneck_width*8, num_classes)
+        self.linear = nn.Linear(cardinality*bottleneck_width*3, num_classes)
+        #original
+        #self.linear = nn.Linear(cardinality*bottleneck_width*8, num_classes)
 
     def _make_layer(self, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -69,8 +71,8 @@ class resnext(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         # out = self.layer4(out)
-        out = F.avg_pool2d(out, 8)
-        #out = F.avg_pool2d(out, 3)
+        #out = F.avg_pool2d(out, 8)
+        out = F.avg_pool2d(out, 3)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
