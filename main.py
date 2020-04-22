@@ -92,7 +92,7 @@ def main(args, ITE=0):
     elif args.arch_type == "DenseNet":
         model = DenseNet.DenseNet().to(device)
     elif args.arch_type == "resnext":
-        model = resnext.resnext(num_blocks=[3,3,3], cardinality=8, bottleneck_width=64).to(device)
+        model = resnext.resnext(num_blocks=[3,3,3], cardinality=2, bottleneck_width=64).to(device)
     #elif args.arch_type == "Xception":
         #model = Xception.Xception().to(device)
     elif args.arch_type == "MobileNetV2":
