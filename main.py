@@ -38,12 +38,12 @@ def main(args, ITE=0):
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
         testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, MobileNetV2, resnext, DenseNet
+        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet
 
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
         testdataset = datasets.CIFAR10('../data', train=False, transform=transform)      
-        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet, ResNeXt, MobileNetV2
+        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet, googlenet
 
     elif args.dataset == "fashionmnist":
         traindataset = datasets.FashionMNIST('../data', train=True, download=True,transform=transform)
