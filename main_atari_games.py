@@ -35,6 +35,9 @@ import torch.optim as optim
 
 
 
+#for results - we have to draw a graph of comp[_ite] Vs bestacc[_ite]
+
+
 
 # Tensorboard initialization  - main.py
 writer = SummaryWriter()
@@ -90,12 +93,6 @@ def main(args, ITE=0):
                                                             n_epi, score/print_interval, memory.size(), epsilon*100))
             score = 0.0
     env.close()
-
-
-
-
-
-
 
 
 
