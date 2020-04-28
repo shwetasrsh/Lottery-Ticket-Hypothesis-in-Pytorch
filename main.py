@@ -53,7 +53,11 @@ def main(args, ITE=0):
     elif args.dataset == "cifar100":
         traindataset = datasets.CIFAR100('../data', train=True, download=True,transform=transform)
         testdataset = datasets.CIFAR100('../data', train=False, transform=transform)   
-        from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet  
+        from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet 
+    elif args.dataset == "ImageNet":
+        traindataset = datasets.ImageNet('../data', train=True, download=True,transform=transform)
+        testdataset = datasets.ImageNet('../data', train=False, transform=transform)
+        from archs.ImageNet import densenet
     
     # If you want to add extra datasets paste here
     #Here we will insert the model of reinforcement learning on atari games
@@ -91,8 +95,8 @@ def main(args, ITE=0):
         model = SENet.SENet(PreActBlock, [2,2,2,2]).to(device)
     elif args.arch_type == "DenseNet":
         model = DenseNet.DenseNet().to(device)
-    elif args.arch_type == "resnext":
-        model = resnext.resnext(num_blocks=[3,3,3], cardinality=2, bottleneck_width=64).to(device)
+    elif args.arch_type == "densenet":
+        model = densenet.densenet().to(device)
     #elif args.arch_type == "Xception":
         #model = Xception.Xception().to(device)
     elif args.arch_type == "InceptionResNetV2":
