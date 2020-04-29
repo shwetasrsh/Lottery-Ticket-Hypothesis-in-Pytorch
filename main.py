@@ -56,8 +56,8 @@ def main(args, ITE=0):
         from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet 
         
     elif args.dataset == "ImageNet":
-        traindataset = datasets.ImageNet('http://www.image-net.org/challenges/LSVRC/2017/nnoupb/ILSVRC2017_img_train.tar', split='train', download=True)
-        testdataset = datasets.ImageNet('http://www.image-net.org/challenges/LSVRC/2017/nnoupb/ILSVRC2017_img_val.tar', split='val', download=True)
+        traindataset = datasets.ImageNet('../data', split='train', download=True,transform=transform)
+        testdataset = datasets.ImageNet('../data', split='val', download=True,transform=transform)
         from archs.ImageNet import densenet
     
     # If you want to add extra datasets paste here
