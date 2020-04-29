@@ -3,7 +3,7 @@ import argparse
 import copy
 import os
 import sys
-from gluoncv.data import ImageNet
+#from gluoncv.data import ImageNet
 import numpy as np
 from tqdm import tqdm
 import torch
@@ -39,7 +39,7 @@ def main(args, ITE=0):
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
         testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, resnext
+        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet, googlenet, resnext, DenseNet
 
     elif args.dataset == "cifar10":
         traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
@@ -56,12 +56,12 @@ def main(args, ITE=0):
         testdataset = datasets.CIFAR100('../data', train=False, transform=transform)   
         from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet 
         
-    elif args.dataset == "ImageNet":
+    #elif args.dataset == "ImageNet":
         #traindataset = datasets.ImageNet('../archs/', split='train', download=True,transform=transform)
         #testdataset = datasets.ImageNet('../archs/', split='val', download=True,transform=transform)
-        traindataset = ImageNet(train=True)
-        testdataset =  ImageNet(train=False)
-        from archs.ImageNet import densenet
+        #traindataset = ImageNet(train=True)
+        #testdataset =  ImageNet(train=False)
+        #from archs.ImageNet import densenet
     
     # If you want to add extra datasets paste here
     #Here we will insert the model of reinforcement learning on atari games
