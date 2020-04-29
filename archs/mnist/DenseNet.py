@@ -1,71 +1,88 @@
-# https://github.com/pytorch/vision/blob/master/torchvision/models/densenet.py
 
-# https://github.com/felixgwu/img_classification_pk_pytorch/blob/master/models/densenet.py
+
+
+#DenseNet on mnist
+
+
+import re
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.utils.checkpoint as cp
 from collections import OrderedDict
-#from torchvision.models.densenet import _Transition
-import math
 
+def _bn_function_factory(norm, relu, conv):
+    def bn_function(*inputs):
+        concated_features = torch.cat(inputs, 1)
+        bottleneck_output = conv(relu(norm(concated_features)))
+        return bottleneck_output
 
-
-class _Transition(nn.Sequential):
-    def __init__(self,num_input_features,num_output_features):
-        super(_Transition,self).__init__()
-        self.add_module('norm',nn.BatchNorm2d(num_input_features))
-        self.add_module('relu',nn.ReLU(inplace=True))
-	self.add_module('conv',nn.Conv2d(num_input_features,num_output_features,
-	    kernel_size=1,stride=1,bias=False))
-	self.add_module('pool',nn.AvgPool2d(kernel_size=2,stride=2))
-
-
+    return bn_function
 
 
 class _DenseLayer(nn.Sequential):
-
-    def __init__(self, num_input_features, growth_rate, bn_size, drop_rate):
+    def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, memory_efficient=False):
         super(_DenseLayer, self).__init__()
-        self.add_module('norm.1', nn.BatchNorm2d(num_input_features)),
-        self.add_module('relu.1', nn.ReLU(inplace=True)),
-
-        # If the bottle neck mode is set, apply feature reduction to limit the growth of features
-        # Why should we expand the number of features by bn_size*growth?
-
-        # https://stats.stackexchange.com/questions/194142/what-does-1x1-convolution-mean-in-a-neural-network
-        if bn_size > 0:
-            interChannels = 4*growth_rate
-            self.add_module('conv.1', nn.Conv2d(
-                num_input_features, interChannels, kernel_size=1, stride=1, bias=False))
-            self.add_module('norm.2', nn.BatchNorm2d(interChannels))
-            self.add_module('conv.2', nn.Conv2d(
-                interChannels, growth_rate, kernel_size=3, padding=1, bias=False))
-        else:
-            self.add_module('conv.2', nn.Conv2d(
-                num_input_features, growth_rate, kernel_size=3, stride=1, padding=1, bias=False))
-
+        self.add_module('norm1', nn.BatchNorm2d(num_input_features)),
+        self.add_module('relu1', nn.ReLU(inplace=True)),
+        self.add_module('conv1', nn.Conv2d(num_input_features, bn_size *
+                                           growth_rate, kernel_size=1, stride=1,
+                                           bias=False)),
+        self.add_module('norm2', nn.BatchNorm2d(bn_size * growth_rate)),
+        self.add_module('relu2', nn.ReLU(inplace=True)),
+        self.add_module('conv2', nn.Conv2d(bn_size * growth_rate, growth_rate,
+                                           kernel_size=3, stride=1, padding=1,
+                                           bias=False)),
         self.drop_rate = drop_rate
+        self.memory_efficient = memory_efficient
 
-    def forward(self, x):
-        new_features = super(_DenseLayer, self).forward(x)
+    def forward(self, *prev_features):
+        bn_function = _bn_function_factory(self.norm1, self.relu1, self.conv1)
+        if self.memory_efficient and any(prev_feature.requires_grad for prev_feature in prev_features):
+            bottleneck_output = cp.checkpoint(bn_function, *prev_features)
+        else:
+            bottleneck_output = bn_function(*prev_features)
+        new_features = self.conv2(self.relu2(self.norm2(bottleneck_output)))
         if self.drop_rate > 0:
-            new_features = F.dropout(
-                new_features, p=self.drop_rate, training=self.training)
-        return torch.cat([x, new_features], 1)
+            new_features = F.dropout(new_features, p=self.drop_rate,
+                                     training=self.training)
+        return new_features
 
 
-class _DenseBlock(nn.Sequential):
-
-    def __init__(self, num_layers, num_input_features, bn_size, growth_rate, drop_rate):
+class _DenseBlock(nn.Module):
+    def __init__(self, num_layers, num_input_features, bn_size, growth_rate, drop_rate, memory_efficient=False):
         super(_DenseBlock, self).__init__()
         for i in range(num_layers):
-            layer = _DenseLayer(num_input_features+i *
-                                growth_rate, growth_rate, bn_size, drop_rate)
-            self.add_module('denselayer%d' % (i+1), layer)
+            layer = _DenseLayer(
+                num_input_features + i * growth_rate,
+                growth_rate=growth_rate,
+                bn_size=bn_size,
+                drop_rate=drop_rate,
+                memory_efficient=memory_efficient,
+            )
+            self.add_module('denselayer%d' % (i + 1), layer)
+
+    def forward(self, init_features):
+        features = [init_features]
+        for name, layer in self.named_children():
+            new_features = layer(*features)
+            features.append(new_features)
+        return torch.cat(features, 1)
+
+
+class _Transition(nn.Sequential):
+    def __init__(self, num_input_features, num_output_features):
+        super(_Transition, self).__init__()
+        self.add_module('norm', nn.BatchNorm2d(num_input_features))
+        self.add_module('relu', nn.ReLU(inplace=True))
+        self.add_module('conv', nn.Conv2d(num_input_features, num_output_features,
+                                          kernel_size=1, stride=1, bias=False))
+        self.add_module('pool', nn.AvgPool2d(kernel_size=2, stride=2))
 
 
 class DenseNet(nn.Module):
-    """Densenet-BC model class, based on
+    r"""Densenet-BC model class, based on
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
     Args:
         growth_rate (int) - how many filters to add each layer (`k` in paper)
         block_config (list of 4 ints) - how many layers in each pooling block
@@ -74,57 +91,145 @@ class DenseNet(nn.Module):
           (i.e. bn_size * k features in the bottleneck layer)
         drop_rate (float) - dropout rate after each dense layer
         num_classes (int) - number of classification classes
+        memory_efficient (bool) - If True, uses checkpointing. Much more memory efficient,
+          but slower. Default: *False*. See `"paper" <https://arxiv.org/pdf/1707.06990.pdf>`_
     """
 
     def __init__(self, growth_rate=4, block_config=(6, 6, 6), compression=0.5,
-                 num_init_features=24, bn_size=4, drop_rate=0, avgpool_size=8,
-                 num_classes=10):
+                 num_init_features=24, bn_size=4, drop_rate=0, avgpool_size=8, num_classes=10, memory_efficient=False):
+
         super(DenseNet, self).__init__()
 
-        # The first Convolution layer
+        # First convolution
         self.features = nn.Sequential(OrderedDict([
-            ('conv0', nn.Conv2d(1, num_init_features,
-                                kernel_size=3, stride=1, padding=1, bias=False)),
+            ('conv0', nn.Conv2d(1, num_init_features, kernel_size=3, stride=1,
+                                padding=1, bias=False)),
             ('norm0', nn.BatchNorm2d(num_init_features)),
             ('relu0', nn.ReLU(inplace=True)),
+            ('pool0', nn.MaxPool2d(kernel_size=3, stride=2, padding=1)),
         ]))
-        # Did not add the pooling layer to preserve dimension
-        # The number of layers in each Densnet is adjustable
 
+        # Each denseblock
         num_features = num_init_features
         for i, num_layers in enumerate(block_config):
-            Dense_block = _DenseBlock(num_layers=num_layers, num_input_features=num_features,
-                                      bn_size=bn_size, growth_rate=growth_rate, drop_rate=drop_rate)
-            # Add name to the Denseblock
-            self.features.add_module('denseblock%d' % (i + 1), Dense_block)
-
-            # Increase the number of features by the growth rate times the number
-            # of layers in each Denseblock
-            num_features += num_layers * growth_rate
-
-            # check whether the current block is the last block
-            # Add a transition layer to all Denseblocks except the last
-            if i != len(block_config):
-                # Reduce the number of output features in the transition layer
-
-                nOutChannels = int(math.floor(num_features*compression))
-
+            block = _DenseBlock(
+                num_layers=num_layers,
+                num_input_features=num_features,
+                bn_size=bn_size,
+                growth_rate=growth_rate,
+                drop_rate=drop_rate,
+                memory_efficient=memory_efficient
+            )
+            self.features.add_module('denseblock%d' % (i + 1), block)
+            num_features = num_features + num_layers * growth_rate
+            if i != len(block_config) - 1:
                 trans = _Transition(num_input_features=num_features,
-                                    num_output_features=nOutChannels)
+                                    num_output_features=num_features // 2)
                 self.features.add_module('transition%d' % (i + 1), trans)
-                # change the number of features for the next Dense block
-                num_features = nOutChannels
+                num_features = num_features // 2
 
-            # Final batch norm
-            self.features.add_module('last_norm%d' % (i+1), nn.BatchNorm2d(num_features))
-	    #self.last_norm = nn.BatchNorm2d(num_features)
-            # Linear layer
-            self.classifier = nn.Linear(num_features, num_classes)
+        # Final batch norm
+        self.features.add_module('norm5', nn.BatchNorm2d(num_features))
+
+        # Linear layer
+        self.classifier = nn.Linear(num_features, num_classes)
+
+        # Official init from torch repo.
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         features = self.features(x)
         out = F.relu(features, inplace=True)
-        out = F.avg_pool2d(out, kernel_size = 8 ).view(
-            features.size(0), -1)
+        #out = F.adaptive_avg_pool2d(out, (1, 1))
+        #out = torch.flatten(out, 1)
+	out = F.avg_pool2d(out, kernel_size = 8 ).view(features.size(0), -1)
         out = self.classifier(out)
         return out
+
+
+def _load_state_dict(model, model_url, progress):
+    # '.'s are no longer allowed in module names, but previous _DenseLayer
+    # has keys 'norm.1', 'relu.1', 'conv.1', 'norm.2', 'relu.2', 'conv.2'.
+    # They are also in the checkpoints in model_urls. This pattern is used
+    # to find such keys.
+    pattern = re.compile(
+        r'^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$')
+
+    state_dict = load_state_dict_from_url(model_url, progress=progress)
+    for key in list(state_dict.keys()):
+        res = pattern.match(key)
+        if res:
+            new_key = res.group(1) + res.group(2)
+            state_dict[new_key] = state_dict[key]
+            del state_dict[key]
+    model.load_state_dict(state_dict)
+
+
+def _densenet(arch, growth_rate, block_config, num_init_features, pretrained, progress,
+              **kwargs):
+    model = DenseNet(growth_rate, block_config, num_init_features, **kwargs)
+    if pretrained:
+        _load_state_dict(model, model_urls[arch], progress)
+    return model
+
+
+def densenet121(pretrained=False, progress=True, **kwargs):
+    r"""Densenet-121 model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+        memory_efficient (bool) - If True, uses checkpointing. Much more memory efficient,
+          but slower. Default: *False*. See `"paper" <https://arxiv.org/pdf/1707.06990.pdf>`_
+    """
+    return _densenet('densenet121', 32, (6, 12, 24, 16), 64, pretrained, progress,
+                     **kwargs)
+
+
+
+def densenet161(pretrained=False, progress=True, **kwargs):
+    r"""Densenet-161 model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+        memory_efficient (bool) - If True, uses checkpointing. Much more memory efficient,
+          but slower. Default: *False*. See `"paper" <https://arxiv.org/pdf/1707.06990.pdf>`_
+    """
+    return _densenet('densenet161', 48, (6, 12, 36, 24), 96, pretrained, progress,
+                     **kwargs)
+
+
+
+def densenet169(pretrained=False, progress=True, **kwargs):
+    r"""Densenet-169 model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+        memory_efficient (bool) - If True, uses checkpointing. Much more memory efficient,
+          but slower. Default: *False*. See `"paper" <https://arxiv.org/pdf/1707.06990.pdf>`_
+    """
+    return _densenet('densenet169', 32, (6, 12, 32, 32), 64, pretrained, progress,
+                     **kwargs)
+
+
+
+def densenet201(pretrained=False, progress=True, **kwargs):
+    r"""Densenet-201 model from
+    `"Densely Connected Convolutional Networks" <https://arxiv.org/pdf/1608.06993.pdf>`_
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+        memory_efficient (bool) - If True, uses checkpointing. Much more memory efficient,
+          but slower. Default: *False*. See `"paper" <https://arxiv.org/pdf/1707.06990.pdf>`_
+    """
+    return _densenet('densenet201', 32, (6, 12, 48, 32), 64, pretrained, progress,
+                     **kwargs)
