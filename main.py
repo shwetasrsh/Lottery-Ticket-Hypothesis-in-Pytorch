@@ -56,12 +56,12 @@ def main(args, ITE=0):
         testdataset = datasets.CIFAR100('../data', train=False, transform=transform)   
         from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet 
         
-    #elif args.dataset == "ImageNet":
-        #traindataset = datasets.ImageNet('../archs/', split='train', download=True,transform=transform)
-        #testdataset = datasets.ImageNet('../archs/', split='val', download=True,transform=transform)
+    elif args.dataset == "ImageNet":
+        traindataset = datasets.ImageNet('../data', split='train', download=True,transform=transform)
+        testdataset = datasets.ImageNet('../data', split='val', download=True,transform=transform)
         #traindataset = ImageNet(train=True)
         #testdataset =  ImageNet(train=False)
-        #from archs.ImageNet import densenet
+        from archs.ImageNet import densenet
     
     # If you want to add extra datasets paste here
     #Here we will insert the model of reinforcement learning on atari games
