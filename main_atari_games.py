@@ -180,8 +180,8 @@ def main(args, ITE=0):
         if n_epi%print_interval==0 and n_epi!=0:
             #q_target.load_state_dict(q.state_dict())
             model.load_state_dict(q.state_dict())
-            print("n_episode :{}, score : {:.1f}, n_buffer : {}, eps : {:.1f}%".format(
-                                                            n_epi, score/print_interval, memory.size(), epsilon*100))
+            #print("n_episode :{}, score : {:.1f}, n_buffer : {}, eps : {:.1f}%".format(
+                                                            #n_epi, score/print_interval, memory.size(), epsilon*100))
             score = 0.0
     env.close()
     # here we have to work with q_target
@@ -426,8 +426,8 @@ if __name__=="__main__":
     #args = parser.parse_args()
 
 
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
-    os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
+    #os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
+    #os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
     
     
     #FIXME resample
