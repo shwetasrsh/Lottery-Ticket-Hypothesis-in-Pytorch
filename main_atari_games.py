@@ -194,7 +194,7 @@ def main():
             else:
                 original_initialization(mask, initial_state_dict)
             #optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
-        print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
+        #print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
     #output           
     for n_epi in range(10000):
         epsilon = max(0.01, 0.08 - 0.01*(n_epi/200)) #Linear annealing from 8% to 1%
