@@ -121,9 +121,9 @@ def train(q, model, memory, optimizer):
         s,a,r,s_prime,done_mask = memory.sample(batch_size)
         #s,a,r,s_prime,done_mask = memory.sample(32)
         q_out = q(s)
-        
-        q_a = q_out.gather(1,a)
-        
+        #q_a = q_out.gather(1,a)
+        q_a = q_out.gather(1,a.unsqueeze(1))
+        #q_a = q_a.squeeze(1)
         max_q_prime = model(s_prime).max(1)[0].unsqueeze(1)
         target = r + gamma * max_q_prime * done_mask
         loss = F.smooth_l1_loss(q_a, target)
