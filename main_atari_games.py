@@ -207,7 +207,7 @@ def main():
         done = False
 
         while not done:
-            #a = q.sample_action(torch.from_numpy(s).float(), epsilon)
+            a = q.sample_action(torch.from_numpy(s).float(), epsilon)
 
             #s_prime, r, done, info = env.step(a)
             s_prime, r, done, info = env.step(env.action_space.sample())
