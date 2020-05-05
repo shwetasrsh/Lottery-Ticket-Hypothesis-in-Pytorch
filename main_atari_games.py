@@ -122,7 +122,7 @@ def train(q, model, memory, optimizer):
         #s,a,r,s_prime,done_mask = memory.sample(32)
         q_out = q(s)
         #q_a = q_out.gather(1,a)
-        q_a = q_out.gather(1,a.view(-1,1))
+        q_a = q_out.gather(1,a)
         #q_a = q_a.squeeze(1)
         max_q_prime = model(s_prime).max(1)[0].unsqueeze(1)
         target = r + gamma * max_q_prime * done_mask
@@ -207,10 +207,10 @@ def main():
         done = False
 
         while not done:
-            a = q.sample_action(torch.from_numpy(s).float(), epsilon)
-
+            #a = q.sample_action(torch.from_numpy(s).float(), epsilon)
+            a = env.action_space.sample()  #from one solution
             #s_prime, r, done, info = env.step(a)
-            s_prime, r, done, info = env.step(env.action_space.sample())
+            s_prime, r, done, info = env.step(a)
             # s_prime => an environment specific object representing your observation of the environment
             # r => amount of reward achieved by the previous action. The scale varies between environments, but the goal is
             # always to increase your total reward
