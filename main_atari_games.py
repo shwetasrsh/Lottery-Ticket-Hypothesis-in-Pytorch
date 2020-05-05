@@ -207,8 +207,10 @@ def main():
         done = False
 
         while not done:
-            a = q.sample_action(torch.from_numpy(s).float(), epsilon)      
-            s_prime, r, done, info = env.step(a)
+            #a = q.sample_action(torch.from_numpy(s).float(), epsilon)
+
+            #s_prime, r, done, info = env.step(a)
+            s_prime, r, done, info = env.step(env.action_space.sample())
             # s_prime => an environment specific object representing your observation of the environment
             # r => amount of reward achieved by the previous action. The scale varies between environments, but the goal is
             # always to increase your total reward
