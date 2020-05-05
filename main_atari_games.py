@@ -159,6 +159,8 @@ def main():
     #model.apply(weight_init)
    
     model.apply(weight_init)
+    # Copying and Saving Initial State
+    initial_state_dict = copy.deepcopy(model.state_dict())
     # Making Initial Mask
     make_mask(model)
     # Optimizer and Loss  (not necessary, is there in the train method)
@@ -193,7 +195,7 @@ def main():
                 step = 0
             else:
                 original_initialization(mask, initial_state_dict)
-            #optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=1.2e-3, weight_decay=1e-4)
         #print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
     #output           
     for n_epi in range(10000):
