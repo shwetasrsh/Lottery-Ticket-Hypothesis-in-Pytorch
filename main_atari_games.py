@@ -50,7 +50,7 @@ sns.set_style('darkgrid')
 #learning_rate = 0.0005
 #gamma         = 0.98
 #buffer_limit  = 50000
-#batch_size    = 32
+batch_size    = 32
 
 
 #Hyperparameters from open ai gym
@@ -58,7 +58,7 @@ learning_rate = 0.001
 gamma         = 0.98
 buffer_limit  = 50000
 #batch_size    = 128
-batch_size = 60 #(LTH)
+#batch_size = 60 #(LTH)
 
 # dqn.py file
 # this buffer is a dataset of our agent's past experiences
@@ -119,7 +119,7 @@ class Qnet(nn.Module):
 def train(q, model, memory, optimizer):
     for i in range(10):
         s,a,r,s_prime,done_mask = memory.sample(batch_size)
-        
+        #s,a,r,s_prime,done_mask = memory.sample(32)
         q_out = q(s)
         
         q_a = q_out.gather(1,a)
