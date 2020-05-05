@@ -57,7 +57,8 @@ sns.set_style('darkgrid')
 learning_rate = 0.001
 gamma         = 0.98
 buffer_limit  = 50000
-batch_size    = 128
+#batch_size    = 128
+batch_size = 60
 
 # dqn.py file
 # this buffer is a dataset of our agent's past experiences
@@ -94,7 +95,7 @@ class Qnet(nn.Module):
     def __init__(self):
         super(Qnet, self).__init__()
         #self.fc1 = nn.Linear(4, 128)
-        self.fc1 = nn.Linear(3, 128)
+        self.fc1 = nn.Linear(4, 128)
         #Here 4 because each state representation is an input and that takes 4 preprocessed image frames
         self.fc2 = nn.Linear(128, 128)
         self.fc3 = nn.Linear(128, 2)
