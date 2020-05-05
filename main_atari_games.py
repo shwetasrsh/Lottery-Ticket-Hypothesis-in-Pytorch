@@ -207,8 +207,8 @@ def main():
         done = False
 
         while not done:
-            #a = q.sample_action(torch.from_numpy(s).float(), epsilon)
-            a = env.action_space.sample()  #from one solution
+            a = q.sample_action(torch.from_numpy(s).float(), epsilon)
+            #a = env.action_space.sample()  #from one solution
             #s_prime, r, done, info = env.step(a)
             s_prime, r, done, info = env.step(a)
             # s_prime => an environment specific object representing your observation of the environment
