@@ -137,7 +137,7 @@ def main():
     #reinit = True if args.prune_type=="reinit" else False
     reinit = False
     # Data Loader
-    env = gym.make('MsPacman-No-Frameskip-v0')
+    env = gym.make('MsPacman-v0')
     # Architecture
     q = Qnet()
     global model
