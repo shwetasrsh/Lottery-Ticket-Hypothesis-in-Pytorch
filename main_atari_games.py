@@ -132,9 +132,10 @@ def train(q, model, memory, optimizer):
 
 # q_target is replaced by model
 # Main - main.py
-def main(args, ITE=0):
+def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    reinit = True if args.prune_type=="reinit" else False
+    #reinit = True if args.prune_type=="reinit" else False
+    reinit = False
     # Data Loader
     env = gym.make('MsPacman-No-Frameskip-v0')
     # Architecture
