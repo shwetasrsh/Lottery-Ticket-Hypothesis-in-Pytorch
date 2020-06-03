@@ -19,6 +19,9 @@ import torchvision.utils as vutils
 import seaborn as sns
 import torch.nn.init as init
 import pickle
+# prune.py
+import prune
+
 
 # Custom Libraries
 import utils
@@ -127,8 +130,8 @@ def main(args, ITE=0):
     
     
     # Optimizer and Loss
-    optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss() # Default was F.nll_loss
+    optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)   #training the model
+    criterion = nn.CrossEntropyLoss() # Default was F.nll_loss            #training the model
 
     # Layer Looper
 #     for name, param in model.named_parameters():
@@ -145,13 +148,22 @@ def main(args, ITE=0):
     all_loss = np.zeros(args.end_iter,float)
     all_accuracy = np.zeros(args.end_iter,float)
 
-
+    # filter pruning should be here
     for _ite in range(args.start_iter, ITERATION):
-        print('Hello')
-        if not _ite == 0:
-            prune_by_percentile(args.prune_percent, resample=resample, reinit=reinit)
-            if reinit:
-                model.apply(weight_init)
+	print('Hello')
+	if not _ite == 0:
+            model = prune_model(model, factor_removed=0.10)
+	    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+	print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
+
+
+   #LTH portion
+    #for _ite in range(args.start_iter, ITERATION):
+        #print('Hello')
+        #if not _ite == 0:
+            #prune_by_percentile(args.prune_percent, resample=resample, reinit=reinit)
+            #if reinit:
+                #model.apply(weight_init)
                 #if args.arch_type == "fc1":
                 #    model = fc1.fc1().to(device)
                 #elif args.arch_type == "lenet5":
@@ -167,17 +179,17 @@ def main(args, ITE=0):
                 #else:
                 #    print("\nWrong Model choice\n")
                 #    exit()
-                step = 0
-                for name, param in model.named_parameters():
-                    if 'weight' in name:
-                        weight_dev = param.device
-                        param.data = torch.from_numpy(param.data.cpu().numpy() * mask[step]).to(weight_dev)
-                        step = step + 1
-                step = 0
-            else:
-                original_initialization(mask, initial_state_dict)
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
-        print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
+                #step = 0
+                #for name, param in model.named_parameters():
+                    #if 'weight' in name:
+                        #weight_dev = param.device
+                        #param.data = torch.from_numpy(param.data.cpu().numpy() * mask[step]).to(weight_dev)
+                        #step = step + 1
+                #step = 0
+            #else:
+                #original_initialization(mask, initial_state_dict)
+            #optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+        #print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
 
         # Print the table of Nonzeros in each layer
         comp1 = utils.print_nonzeros(model)
