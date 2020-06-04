@@ -149,12 +149,14 @@ def main(args, ITE=0):
     all_accuracy = np.zeros(args.end_iter,float)
 
     # filter pruning should be here
-    for _ite in range(args.start_iter, ITERATION):
-	print('Hello')
-	if not _ite == 0:
-            model = prune_model(model, factor_removed=0.10)
-	    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
-	print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
+    model = prune_model(model, factor_removed=0.10)
+    #for _ite in range(args.start_iter, ITERATION):
+	#print('Hello')
+	#if not _ite == 0:
+            #model = prune_model(model, factor_removed=0.10)
+	    #optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+	#print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
+    
 
 
    #LTH portion
@@ -269,12 +271,6 @@ def main(args, ITE=0):
     plt.savefig(f"{os.getcwd()}/plots/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_AccuracyVsWeights.png", dpi=1200) 
     plt.close()                    
    
-def mask(model, cut_off=0):
-	for p in model.parameters():
-		p_mask = abs(p)>cut_off
-		p *= p_mask.float()
-	return model
-
 # Function for Training
 def train(model, train_loader, optimizer, criterion):
     EPS = 1e-6
@@ -315,48 +311,7 @@ def test(model, test_loader, criterion):
         accuracy = 100. * correct / len(test_loader.dataset)
     return accuracy
 
-# Prune by Percentile module
-def prune_by_percentile(percent, resample=False, reinit=False,**kwargs):
-        global step
-        global mask
-        global model
 
-        # Calculate percentile value
-        step = 0
-        for name, param in model.named_parameters():
-
-            # We do not prune bias term
-            if 'weight' in name:
-                tensor = param.data.cpu().numpy()
-                alive = tensor[np.nonzero(tensor)] # flattened array of nonzero values
-                percentile_value = np.percentile(abs(alive), percent)
-
-                # Convert Tensors to numpy and calculate
-                weight_dev = param.device
-                new_mask = np.where(abs(tensor) < percentile_value, 0, mask[step])
-                
-                # Apply new weight and mask
-                param.data = torch.from_numpy(tensor * new_mask).to(weight_dev)
-                mask[step] = new_mask
-                step += 1
-        step = 0
-
-# Function to make an empty mask of the same size as the model
-def make_mask(model):
-    global step
-    global mask
-    step = 0
-    for name, param in model.named_parameters(): 
-        if 'weight' in name:
-            step = step + 1
-    mask = [None]* step 
-    step = 0
-    for name, param in model.named_parameters(): 
-        if 'weight' in name:
-            tensor = param.data.cpu().numpy()
-            mask[step] = np.ones_like(tensor)
-            step = step + 1
-    step = 0
 
 def original_initialization(mask_temp, initial_state_dict):
     global model
