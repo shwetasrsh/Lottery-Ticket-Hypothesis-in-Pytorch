@@ -149,7 +149,7 @@ def main(args, ITE=0):
     all_accuracy = np.zeros(args.end_iter,float)
 
     # filter pruning should be here
-    model = prune_model(model, factor_removed=0.10)
+    # model = prune_model(model, factor_removed=0.10)
     #for _ite in range(args.start_iter, ITERATION):
 	#print('Hello')
 	#if not _ite == 0:
@@ -192,7 +192,9 @@ def main(args, ITE=0):
                 #original_initialization(mask, initial_state_dict)
             #optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
         #print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
-
+	
+     model = prune_model(model, factor_removed=0.75)	
+     for _ite in range(args.start_iter, ITERATION):
         # Print the table of Nonzeros in each layer
         comp1 = utils.print_nonzeros(model)
         comp[_ite] = comp1
