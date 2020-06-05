@@ -194,6 +194,9 @@ def main(args, ITE=0):
         #print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
 	
     model = prune_model(model, factor_removed=0.75)	
+
+
+    # 
     for _ite in range(args.start_iter, ITERATION):
         # Print the table of Nonzeros in each layer
         comp1 = utils.print_nonzeros(model)
@@ -253,6 +256,9 @@ def main(args, ITE=0):
         best_accuracy = 0
         all_loss = np.zeros(args.end_iter,float)
         all_accuracy = np.zeros(args.end_iter,float)
+    # ends the for loop   
+
+
 
     # Dumping Values for Plotting
     utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
